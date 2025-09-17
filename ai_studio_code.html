@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Our Heritage Homes Survey: Guest Insights & Market Dynamics</title>
+
+  <!-- Tailwind Play CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: ['class', '[data-theme="dark"]'],
+      theme: {
+        extend: {
+          colors: {
+            'indigo-due': '#123e55',
+            'metallic-gold': '#d0ac49',
+          },
+          fontFamily: {
+            cinzel: ['Cinzel', 'serif'],
+            montserrat: ['Montserrat', 'system-ui', 'Segoe UI', 'Roboto', 'sans-serif'],
+          },
+          boxShadow: {
+            soft: '0 8px 30px rgba(0,0,0,.06)'
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind component layer for reusable classes -->
+  <style type="text/tailwindcss">
+    @layer base {
+      :root { color-scheme: light; }
+      :root[data-theme="dark"] { color-scheme: dark; }
+      html, body { height: 100%; }
+      body { @apply font-montserrat bg-gray-50 text-gray-800 antialiased; }
+    }
+
+    @layer components {
+      .card { @apply bg-white dark:bg-gray-900 border border-gray-200/60 dark:border-gray-800 rounded-2xl shadow-soft; }
+      .section { @apply card p-6 md:p-8; }
+      .legend-title { @apply text-2xl md:text-3xl font-bold text-indigo-due font-cinzel mb-6 border-b border-indigo-due/20 pb-3; }
+
+      .form-label { @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5; }
+      .form-hint { @apply mt-1 text-sm text-gray-500; }
+
+      .field { position: relative; margin: 0 0 1.5rem 0; }
+      .input { @apply block w-full rounded-xl border border-gray-300/90 bg-white dark:bg-gray-950/60 px-4 py-3 text-gray-900 dark:text-gray-100 placeholder-gray-400 transition focus:outline-none focus:ring-4 focus:ring-indigo-due/20 focus:border-indigo-due; }
+      
+      .textarea { @apply input w-full min-h-[112px] resize-y; }
+      
+      .percent { @apply grid grid-cols-[1fr_auto] items-center gap-2; }
+      .percent > input { @apply input w-full; }
+      .percent > span { @apply text-gray-500; }.choice-row { @apply grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3; }
+      .choice { @apply inline-flex items-center gap-2 rounded-lg border border-gray-300/70 px-3 py-2 hover:border-indigo-due/60 transition; }
+      .choice input { @apply h-4 w-4 text-indigo-due focus:ring-indigo-due; }
+
+      .btn { @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 font-semibold transition shadow-soft focus:outline-none focus:ring-4 focus:ring-indigo-due/25 disabled:opacity-50 disabled:cursor-not-allowed; }
+      .btn-primary { @apply bg-indigo-due text-white hover:brightness-110; }
+      .btn-muted { @apply bg-gray-200 text-gray-800 hover:bg-gray-300; }
+
+      .progress-outer { @apply w-full h-2.5 rounded-full bg-gray-200 dark:bg-gray-800; }
+      .progress-inner { @apply h-2.5 rounded-full bg-indigo-due transition-all duration-500; }
+
+      .error-text { @apply mt-1 text-sm text-red-600; }
+      
+      .with-suffix { @apply relative inline-flex items-center; }
+      .with-suffix > input { @apply input pr-4 w-24; }
+      .with-suffix > span { @apply absolute right-3 text-gray-500 pointer-events-none; }
+.step { @apply section hidden; }
+      .step.active { @apply block; }
+    }
+  </style>
+  <style>
+    .max-w-3xl { max-width: 60rem !important; }
+    .with-suffix > input { width: 6rem; padding-right: 1rem; }
+    /* Uniform question spacing: each .field has 2rem bottom margin */
+    .field { position: relative; margin: 0 0 1rem 0; }
+  </style>
+</head>
+
+<body>
+  <main id="surveyRoot" class="mx-auto max-w-3xl p-4 sm:p-6 lg:p-8">
+    <!-- Header -->
+    <header class="text-center mb-8">
+      <h1 class="text-4xl sm:text-5xl font-bold text-indigo-due font-cinzel tracking-wide">Our Heritage Homes</h1>
+      <p class="text-lg text-gray-600 mt-2">Guest Insights &amp; Market Dynamics Survey</p>
+    </header>
+
+    <!-- Incentives / notice -->
+    <aside class="card border-l-4 border-metallic-gold text-indigo-due p-6 mb-8">
+      <h2 class="font-semibold text-lg">A Thank You For Your Participation</h2>
+      <p class="mt-2">As a thank you for participating in our survey, enjoy these exclusive benefits:</p>
+      <ul class="mt-3 list-disc list-inside space-y-1">
+        <li><strong>Early Access:</strong> Receive the comprehensive survey report before its public release.</li>
+        <li><strong>Exclusive Webinar:</strong> Join our private webinar for an in-depth discussion of the survey's key findings.</li>
+      </ul>
+    </aside>
+
+    <!-- Stepper / Progress -->
+    <section class="mb-6" aria-label="Progress">
+      <div class="flex items-center justify-between mb-2">
+        <span id="progressText" class="text-sm font-medium text-indigo-due">Step 1 of 4</span>
+        <span id="progressPct" class="text-sm font-medium text-indigo-due">25%</span>
+      </div>
+      <div class="progress-outer" aria-hidden="true">
+        <div id="progressBar" class="progress-inner" style="width:25%"></div>
+      </div>
+      <p id="progressSr" class="sr-only" aria-live="polite">Step 1 of 4 (25%)</p>
+    </section>
+
+    <!-- Error summary (hidden until needed) -->
+    <div id="errorSummary" class="hidden section border border-red-200" role="alert" aria-labelledby="errorSummaryTitle">
+      <h3 id="errorSummaryTitle" class="text-red-700 font-semibold mb-2">Please review the highlighted fields</h3>
+      <ul id="errorList" class="list-disc list-inside text-red-700 space-y-1"></ul>
+    </div>
+
+    <!-- Form -->
+    <form id="surveyForm" class="space-y-8" novalidate>
+      <!-- Section A -->
+      <fieldset class="step active" aria-describedby="a-desc">
+        <legend class="legend-title">Section A: Contact Information</legend>
+        <p id="a-desc" class="form-hint">We’ll use this to understand your context. Required items must be completed to continue.</p>
+
+        <div class="qspace">
+          <div class="field" data-field>
+            <label for="email" class="form-label">Email Address:</label>
+            <input id="email" name="email" type="email" class="input" required autocomplete="email" inputmode="email" />
+            <p class="form-hint">We’ll only contact you about this survey.</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="field" data-field>
+              <label for="country" class="form-label">Country:</label>
+              <input id="country" name="country" type="text" class="input" required autocomplete="country-name" />
+            </div>
+            <div class="field" data-field>
+              <label for="city" class="form-label">City:</label>
+              <input id="city" name="city" type="text" class="input" required autocomplete="address-level2" />
+            </div>
+          </div>
+
+          <div class="field" data-field>
+            <label for="property_name" class="form-label">Name of the Property:</label>
+            <input id="property_name" name="property_name" type="text" class="input" required autocomplete="organization" />
+          </div>
+
+          <div class="field" data-field>
+            <label for="role" class="form-label">Your Role in the Organisation:</label>
+            <input id="role" name="role" type="text" class="input" required autocomplete="organization-title" />
+          </div>
+
+          <div class="field" data-field>
+            <span class="form-label">Property Category:</span>
+            <div class="choice-row">
+              <label class="choice"><input type="radio" name="property_category" value="Stay" required> <span>Stay</span></label>
+              <label class="choice"><input type="radio" name="property_category" value="Rent"> <span>Rent</span></label>
+              <label class="choice"><input type="radio" name="property_category" value="Others"> <span>Others</span></label>
+            </div>
+          </div>
+
+          <div class="field" data-field>
+            <span class="form-label">Is this a heritage property?</span>
+            <div class="choice-row">
+              <label class="choice"><input type="radio" name="is_heritage" value="Yes" required> <span>Yes</span></label>
+              <label class="choice"><input type="radio" name="is_heritage" value="No"> <span>No</span></label>
+            </div>
+          </div>
+
+          <div class="field" data-field>
+            <label for="property_age" class="form-label">If yes, what is the approximate age of the property?</label>
+            <input id="property_age" name="property_age" type="text" class="input" placeholder="e.g., 150 years" aria-disabled="true" disabled />
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Section B -->
+      <fieldset class="step" aria-describedby="b-desc">
+        <legend class="legend-title">Section B: Guest Demographics</legend>
+        <p id="b-desc" class="form-hint">Tell us about the guests you most often host.</p>
+
+        <div class="qspace">
+          <div class="field" data-field>
+            <span class="form-label">What is the typical age group of your guests?</span>
+            <div class="space-y-2">
+              <label class="choice"><input type="radio" name="guest_age" value="Below 25"> <span>Below 25 years old</span></label>
+              <label class="choice"><input type="radio" name="guest_age" value="26-35"> <span>26 to 35</span></label>
+              <label class="choice"><input type="radio" name="guest_age" value="36-45"> <span>36 to 45</span></label>
+              <label class="choice"><input type="radio" name="guest_age" value="46-55"> <span>46 to 55</span></label>
+              <label class="choice"><input type="radio" name="guest_age" value="56-65"> <span>56 to 65</span></label>
+              <label class="choice"><input type="radio" name="guest_age" value="66+"> <span>66 and above</span></label>
+            </div>
+          </div>
+
+          <div class="field" data-field>
+            <span class="form-label">Which industries or professions do your guests typically come from? (Select all that apply)</span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <label class="choice"><input type="checkbox" name="guest_industry[]" value="Agriculture"> <span>Agriculture</span></label>
+              <label class="choice"><input type="checkbox" name="guest_industry[]" value="Food"> <span>Food</span></label>
+              <label class="choice"><input type="checkbox" name="guest_industry[]" value="Music and Entertainment"> <span>Music and Entertainment</span></label>
+              <label class="choice"><input type="checkbox" name="guest_industry[]" value="Media/Telecommunication"> <span>Media/Telecommunication</span></label>
+              <label class="choice"><input type="checkbox" name="guest_industry[]" value="Hospitality"> <span>Hospitality</span></label>
+              <label class="choice"><input type="checkbox" name="guest_industry[]" value="Freelance"> <span>Freelance</span></label>
+              <label class="choice"><input type="checkbox" name="guest_industry[]" value="Healthcare"> <span>Healthcare</span></label>
+              <label class="choice"><input type="checkbox" name="guest_industry[]" value="Manufacturing"> <span>Manufacturing</span></label>
+              <label class="choice"><input type="checkbox" name="guest_industry[]" value="Pharmaceutical"> <span>Pharmaceutical</span></label>
+              <label class="choice"><input type="checkbox" name="guest_industry[]" value="Electronics/Tech"> <span>Electronics/Tech</span></label>
+              <label class="choice"><input type="checkbox" name="guest_industry[]" value="Construction"> <span>Construction</span></label>
+              <label class="choice"><input type="checkbox" name="guest_industry[]" value="Education"> <span>Education</span></label>
+            </div>
+            <div class="mt-2 flex flex-wrap items-center gap-3">
+              <label class="choice"><input id="industry_others_check" type="checkbox" class="h-4 w-4 text-indigo-due" /> <span>Others</span></label>
+              <input name="guest_industry_others" type="text" class="input w-full sm:max-w-md" placeholder="Please specify" disabled aria-disabled="true" />
+            </div>
+          </div>
+        </div>
+            </div>
+            
+          </div>
+          <div class="field" data-field>
+            <span class="form-label">In which languages do you primarily communicate with your guests? (Please estimate the percentage for each)</span>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 items-start">
+              <div>
+                <label for="lang_local" class="form-label">Local Language:</label>
+                <div class="with-suffix">
+                  <input id="lang_local" name="lang_local" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0–100%" />
+                </div>
+              </div>
+              <div>
+                <label for="lang_english" class="form-label">English:</label>
+                <div class="with-suffix">
+                  <input id="lang_english" name="lang_english" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0–100%" />
+                </div>
+              </div>
+              <div>
+                <label for="lang_other_spec" class="form-label">Other:</label>
+                <div class="flex items-center gap-2">
+                  <input id="lang_other_spec" name="lang_other_spec" type="text" class="input flex-1" placeholder="Please specify" />
+                  <div class="with-suffix">
+                    <input id="lang_other_perc" name="lang_other_perc" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0–100%" />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p id="langNote" class="form-hint">Aim for a total of 100%. <span id="langTotal" aria-live="polite">Current total: 0%</span></p>
+          </div>
+
+          <div class="field" data-field>
+            <label for="guest_origin" class="form-label">What are the top five countries of origin of your international guests?</label>
+            <textarea id="guest_origin" name="guest_origin" rows="3" class="textarea w-full" placeholder="e.g., United Kingdom, Germany, United States, France, Australia" autocomplete="off"></textarea>
+          </div>
+
+          <div class="field" data-field>
+            <label for="avg_spend" class="form-label">What is the estimated average spend per person for their entire stay at your property (including accommodation, food, and other services)?</label>
+            <input id="avg_spend" name="avg_spend" type="text" class="input" inputmode="decimal" placeholder="Please specify amount and currency, e.g., £350 GBP" />
+          </div>
+
+          <div class="field" data-field>
+            <span class="form-label">Which of the following traveller profiles do you most frequently host? (Please select your top three)</span>
+            <div class="space-y-2" id="travellerProfiles">
+              <label class="choice"><input type="checkbox" name="traveller_profile[]" value="Solo"> <span>Solo traveller</span></label>
+              <label class="choice"><input type="checkbox" name="traveller_profile[]" value="Couple"> <span>Couple</span></label>
+              <label class="choice"><input type="checkbox" name="traveller_profile[]" value="Group/Family"> <span>Group and/or family travellers</span></label>
+              <label class="choice"><input type="checkbox" name="traveller_profile[]" value="Business"> <span>Business travellers</span></label>
+              <div class="mt-2 flex flex-wrap items-center gap-3">
+                <label class="choice"><input id="traveller_profile_others_check" type="checkbox" class="h-4 w-4 text-indigo-due" /> <span>Others</span></label>
+                <input name="traveller_profile_others" type="text" class="input w-full sm:max-w-md" placeholder="Please specify" disabled aria-disabled="true" />
+              </div>
+              <p class="form-hint" id="profileHint">0 of 3 selected</p>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Section C -->
+      <fieldset class="step" aria-describedby="c-desc">
+        <legend class="legend-title">Section C: Guest Behaviours</legend>
+        <p id="c-desc" class="form-hint">Patterns around booking and stay.</p>
+
+        <div class="qspace">
+          <div class="field" data-field>
+            <span class="form-label">What is the approximate percentage of your bookings that come from returning guests?</span>
+            <div class="space-y-2">
+              <label class="choice"><input type="radio" name="returning_guests" value="75+"> <span>75% or more</span></label>
+              <label class="choice"><input type="radio" name="returning_guests" value="50-74"> <span>50-74%</span></label>
+              <label class="choice"><input type="radio" name="returning_guests" value="25-49"> <span>25-49%</span></label>
+              <label class="choice"><input type="radio" name="returning_guests" value="<25"> <span>Less than 25%</span></label>
+            </div>
+          </div>
+
+          <div class="field" data-field>
+            <span class="form-label">What is the approximate percentage of your bookings that come from foreign guests?</span>
+            <div class="space-y-2">
+              <label class="choice"><input type="radio" name="foreign_guests" value="75+"> <span>75% or more</span></label>
+              <label class="choice"><input type="radio" name="foreign_guests" value="50-74"> <span>50-74%</span></label>
+              <label class="choice"><input type="radio" name="foreign_guests" value="25-49"> <span>25-49%</span></label>
+              <label class="choice"><input type="radio" name="foreign_guests" value="<25"> <span>Less than 25%</span></label>
+            </div>
+          </div>
+
+          <div class="field" data-field>
+            <span class="form-label">Based on your observations, which months are your peak and off-peak seasons?</span>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label for="peak_months" class="form-label">Peak/Busiest months:</label>
+                <input id="peak_months" name="peak_months" type="text" class="input" placeholder="e.g., June, July, August" />
+              </div>
+              <div>
+                <label for="offpeak_months" class="form-label">Off-peak/Quietest months:</label>
+                <input id="offpeak_months" name="offpeak_months" type="text" class="input" placeholder="e.g., January, February, November" />
+              </div>
+            </div>
+          </div>
+
+          <div class="field" data-field>
+            <span class="form-label">How far in advance do the majority of your guests book their stay?</span>
+            <div class="space-y-2">
+              <label class="choice"><input type="radio" name="booking_advance" value="<1w"> <span>Less than one week</span></label>
+              <label class="choice"><input type="radio" name="booking_advance" value="1-4w"> <span>1-4 weeks</span></label>
+              <label class="choice"><input type="radio" name="booking_advance" value="1-3m"> <span>1-3 months</span></label>
+              <label class="choice"><input type="radio" name="booking_advance" value="3-6m"> <span>3-6 months</span></label>
+              <label class="choice"><input type="radio" name="booking_advance" value=">6m"> <span>More than 6 months</span></label>
+            </div>
+          </div>
+
+          <div class="field" data-field>
+            <span class="form-label">What is the typical length of stay for your guests?</span>
+            <div class="space-y-2">
+              <label class="choice"><input type="radio" name="length_of_stay" value="overnight"> <span>Overnight</span></label>
+              <label class="choice"><input type="radio" name="length_of_stay" value="2-4"> <span>2 to 4 nights</span></label>
+              <label class="choice"><input type="radio" name="length_of_stay" value="5-7"> <span>5 to 7 nights</span></label>
+              <label class="choice"><input type="radio" name="length_of_stay" value="8-15"> <span>8 to 15 nights</span></label>
+              <label class="choice"><input type="radio" name="length_of_stay" value="16+"> <span>16 nights or more</span></label>
+            </div>
+          </div>
+
+          <div class="field" data-field>
+            <label class="form-label">Thinking about pre-arrival interactions, what is the level of communication your guests typically require? (Total should be 100%)</label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">
+              <div>
+                <label for="low_touch" class="form-label">Low-touch: Guests who book and require minimal further communication.</label>
+                <div class="with-suffix">
+                  <input id="low_touch" name="low_touch" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0–100%" />
+                </div>
+              </div>
+              <div>
+                <label for="high_touch" class="form-label">High-touch: Guests who require further communication (e.g., asking questions, requesting local recommendations).</label>
+                <div class="with-suffix">
+                  <input id="high_touch" name="high_touch" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0–100%" />
+                </div>
+              </div>
+            </div>
+            <p class="form-hint">Total: <span id="touchTotal" aria-live="polite">0%</span></p>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Section D -->
+      <fieldset class="step" aria-describedby="d-desc">
+        <legend class="legend-title">Section D: Guest Motivators</legend>
+        <p id="d-desc" class="form-hint">What drives bookings and choice.</p>
+
+        <div class="qspace">
+          <div class="field" data-field>
+            <label class="form-label">From your experience, what are the primary reasons guests choose your property over others? (Please rank the top five factors, where 1 is the most influential)</label>
+            <div class="space-y-3" id="rankGroup">
+              <div class="flex items-center gap-4">
+                <input type="number" min="1" max="5" name="rank_reason[historical]" class="input w-20 text-center" inputmode="numeric" />
+                <span>Historical significance of the property</span>
+              </div>
+              <div class="flex items-center gap-4">
+                <input type="number" min="1" max="5" name="rank_reason[service]" class="input w-20 text-center" inputmode="numeric" />
+                <span>Proven and tested quality service and accommodation</span>
+              </div>
+              <div class="flex items-center gap-4">
+                <input type="number" min="1" max="5" name="rank_reason[location]" class="input w-20 text-center" inputmode="numeric" />
+                <span>Location and accessibility</span>
+              </div>
+              <div class="flex items-center gap-4">
+                <input type="number" min="1" max="5" name="rank_reason[amenities]" class="input w-20 text-center" inputmode="numeric" />
+                <span>Amenities</span>
+              </div>
+              <div class="flex items-center gap-4">
+                <input type="number" min="1" max="5" name="rank_reason[attractions_inhouse]" class="input w-20 text-center" inputmode="numeric" />
+                <span>Attractions and activities (in-house)</span>
+              </div>
+              <div class="flex items-center gap-4">
+                <input type="number" min="1" max="5" name="rank_reason[attractions_external]" class="input w-20 text-center" inputmode="numeric" />
+                <span>Nearby attractions and activities (external)</span>
+              </div>
+              <div class="flex items-center gap-4">
+                <input type="number" min="1" max="5" name="rank_reason[price]" class="input w-20 text-center" inputmode="numeric" />
+                <span>Price point</span>
+              </div>
+              <div class="flex items-center gap-4">
+                <input type="number" min="1" max="5" name="rank_reason[recommendations]" class="input w-20 text-center" inputmode="numeric" />
+                <span>Recommendations (through friends, family or online reviews)</span>
+              </div>
+              <div class="grid grid-cols-12 gap-2 items-center">
+                <input type="number" min="1" max="5" name="rank_reason_other_rank" class="input w-20 text-center col-span-3 sm:col-span-2" inputmode="numeric" />
+                <input type="text" name="rank_reason_other_value" placeholder="Others, please specify" class="input col-span-9" />
+              </div>
+            </div>
+            <p id="rankHint" class="form-hint">Use each rank 1–5 at most once.</p>
+          </div>
+
+          <div class="field" data-field>
+            <span class="form-label">What are the most common purposes for guests booking a stay at your property? (Please select your top three)</span>
+            <div class="space-y-2" id="purposeGroup">
+              <label class="choice"><input type="checkbox" name="booking_purpose[]" value="Leisure"> <span>Leisure / short-term stay</span></label>
+              <label class="choice"><input type="checkbox" name="booking_purpose[]" value="Business"> <span>Business trip</span></label>
+              <label class="choice"><input type="checkbox" name="booking_purpose[]" value="Mid-term"> <span>Mid-term stay (1 to 5 months)</span></label>
+              <label class="choice"><input type="checkbox" name="booking_purpose[]" value="Long-term"> <span>Long-term stay (6 months and above)</span></label>
+              <label class="choice"><input type="checkbox" name="booking_purpose[]" value="Special events"> <span>Special events (e.g., birthdays, weddings, photoshoots, etc.)</span></label>
+              <div class="mt-2 flex flex-wrap items-center gap-3">
+                <label class="choice"><input id="booking_purpose_others_check" type="checkbox" class="h-4 w-4 text-indigo-due" /> <span>Others</span></label>
+                <input name="booking_purpose_others" type="text" class="input w-full sm:max-w-md" placeholder="Please specify" disabled aria-disabled="true" />
+              </div>
+              <p class="form-hint" id="purposeHint">0 of 3 selected</p>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Nav -->
+      <div class="flex items-center justify-between">
+        <button type="button" id="prevBtn" class="btn btn-muted">Previous</button>
+        <div class="flex items-center gap-3">
+          <button type="button" id="nextBtn" class="btn btn-primary">Next</button>
+          <button type="submit" id="submitBtn" class="btn btn-primary hidden">Submit Survey</button>
+        </div>
+      </div>
+    </form>
+
+    <!-- Thank you screen -->
+    <section id="thankYou" class="hidden">
+      <div class="section text-center">
+        <h2 class="text-3xl font-bold text-indigo-due mb-4 font-cinzel">Thank You!</h2>
+        <p class="text-gray-700 text-lg mb-6">Your participation is greatly appreciated. The insights you have provided are invaluable to us and will play a crucial role in shaping the future of the heritage community.</p>
+        <p class="text-gray-700 text-lg mb-6">As promised, you will receive early access to the comprehensive survey report and an exclusive invitation to our private webinar to discuss the key findings.</p>
+        <p class="text-gray-600">Warm regards,<br>The Our Heritage Homes Team</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Scripts -->
+  <script>
+    (function () {
+      const root = document.documentElement;
+      const steps = Array.from(document.querySelectorAll('.step'));
+      const form = document.getElementById('surveyForm');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const submitBtn = document.getElementById('submitBtn');
+      const progressBar = document.getElementById('progressBar');
+      const progressText = document.getElementById('progressText');
+      const progressPct = document.getElementById('progressPct');
+      const progressSr = document.getElementById('progressSr');
+      const thankYou = document.getElementById('thankYou');
+      const errorSummary = document.getElementById('errorSummary');
+      const errorList = document.getElementById('errorList');
+
+      let current = 0;
+
+      // Enable/disable conditional fields
+      const heritageRadios = form.querySelectorAll('input[name="is_heritage"]');
+      const propertyAge = form.querySelector('#property_age');
+      heritageRadios.forEach(r => r.addEventListener('change', () => {
+        const yes = form.querySelector('input[name="is_heritage"][value="Yes"]').checked;
+        propertyAge.disabled = !yes; propertyAge.toggleAttribute('aria-disabled', !yes);
+        if (!yes) { propertyAge.value = ''; }
+      }));
+
+      const toggleWithCheckbox = (checkboxId, inputName) => {
+        const check = document.getElementById(checkboxId);
+        const target = form.querySelector(`[name="${inputName}"]`);
+        if (!check || !target) return;
+        const sync = () => { target.disabled = !check.checked; target.toggleAttribute('aria-disabled', !check.checked); if (!check.checked) target.value=''; };
+        check.addEventListener('change', sync); sync();
+      };
+      toggleWithCheckbox('industry_others_check', 'guest_industry_others');
+      toggleWithCheckbox('traveller_profile_others_check', 'traveller_profile_others');
+      toggleWithCheckbox('booking_purpose_others_check', 'booking_purpose_others');
+
+      // Language total live message
+      const langInputs = ['lang_local','lang_english','lang_other_perc'].map(id => document.getElementById(id));
+      const langTotal = document.getElementById('langTotal');
+      function updateLangTotal(){
+        const total = langInputs.reduce((sum, el) => sum + (parseInt(el?.value, 10) || 0), 0);
+        langTotal.textContent = `Current total: ${total}%`;
+      }
+      langInputs.forEach(el => el && el.addEventListener('input', updateLangTotal));
+      updateLangTotal();
+
+      // Pre-arrival touch total
+      const lowTouch = document.getElementById('low_touch');
+      const highTouch = document.getElementById('high_touch');
+      const touchTotal = document.getElementById('touchTotal');
+      function updateTouch(){
+        const total = (parseInt(lowTouch.value,10)||0) + (parseInt(highTouch.value,10)||0);
+        touchTotal.textContent = `${total}%`;
+      }
+      ;[lowTouch, highTouch].forEach(el => el.addEventListener('input', updateTouch));
+      updateTouch();
+
+      // Limit selection to 3 for specified groups
+      function withMaxSelections(containerId, max, hintId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        const checkboxes = container.querySelectorAll('input[type="checkbox"][name$="[]"]');
+        const hint = hintId ? document.getElementById(hintId) : null;
+        function refresh(){
+          const checked = Array.from(checkboxes).filter(c => c.checked);
+          if (hint) hint.textContent = `${checked.length} of ${max} selected`;
+          const disable = checked.length >= max;
+          checkboxes.forEach(c => { if (!c.checked) c.disabled = disable; });
+        }
+        container.addEventListener('change', refresh); refresh();
+      }
+      withMaxSelections('travellerProfiles', 3, 'profileHint');
+      withMaxSelections('purposeGroup', 3, 'purposeHint');
+
+      // Ranking uniqueness (1..5 unique)
+      const rankGroup = document.getElementById('rankGroup');
+      const rankHint = document.getElementById('rankHint');
+      if (rankGroup) {
+        rankGroup.addEventListener('input', () => {
+          const values = Array.from(rankGroup.querySelectorAll('input[type="number"]'))
+            .map(i => parseInt(i.value, 10))
+            .filter(v => v >= 1 && v <= 5); // Only consider values within the rank range
+          const dup = values.some((v, i) => values.indexOf(v) !== i);
+          rankHint.textContent = dup ? 'Duplicate ranks detected. Please use each rank 1–5 at most once.' : 'Use each rank 1–5 at most once.';
+          rankHint.classList.toggle('text-red-600', dup);
+        });
+      }
+
+      function showStep(index) {
+        steps.forEach((s,i) => s.classList.toggle('active', i === index));
+        prevBtn.toggleAttribute('disabled', index === 0);
+        nextBtn.classList.toggle('hidden', index === steps.length - 1);
+        submitBtn.classList.toggle('hidden', index !== steps.length - 1);
+        const pct = Math.round(((index + 1) / steps.length) * 100);
+        progressBar.style.width = pct + '%';
+        progressText.textContent = `Step ${index + 1} of ${steps.length}`;
+        progressPct.textContent = pct + '%';
+        progressSr.textContent = `Step ${index + 1} of ${steps.length} (${pct}%)`;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      function validateCurrentStep() {
+        // Basic required validation only for Step A (contact info)
+        if (current !== 0) return true;
+        const step = steps[current];
+        const requiredEls = step.querySelectorAll('[required]');
+        errorList.innerHTML = '';
+        let firstInvalid = null;
+        requiredEls.forEach(el => {
+          const field = el.closest('[data-field]');
+          field?.classList.remove('invalid');
+          el.removeAttribute('aria-invalid');
+          if (!el.checkValidity()) {
+            field?.classList.add('invalid');
+            el.setAttribute('aria-invalid','true');
+            const label = field?.querySelector('.form-label');
+            const msg = label ? label.textContent.replace(':','').trim() : el.name;
+            const li = document.createElement('li');
+            li.innerHTML = `<a href="#${el.id}" class="hover:underline">${msg} is required.</a>`;
+            errorList.appendChild(li);
+            if (!firstInvalid) firstInvalid = el;
+          }
+        });
+        const hasErrors = errorList.childElementCount > 0;
+        errorSummary.classList.toggle('hidden', !hasErrors);
+        if (firstInvalid) firstInvalid.focus();
+        return !hasErrors;
+      }
+
+      nextBtn.addEventListener('click', () => {
+        if (!validateCurrentStep()) return;
+        if (current < steps.length - 1) { current++; showStep(current); }
+      });
+      prevBtn.addEventListener('click', () => { if (current > 0) { current--; showStep(current); } });
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // --- Data Collection ---
+        const formData = new FormData(form);
+        const data = {};
+        const webhookUrl = 'https://n8n.doheain.com/webhook/32456fd9-5190-4523-ba96-6fec241a9815';
+
+        for (const [key, value] of formData.entries()) {
+            if (value === '' || value === null) continue;
+
+            if (key.endsWith('[]')) {
+                const cleanKey = key.slice(0, -2);
+                if (!data[cleanKey]) {
+                    data[cleanKey] = [];
+                }
+                data[cleanKey].push(value);
+            } else if (key.includes('[')) {
+                const mainKey = key.substring(0, key.indexOf('['));
+                const subKey = key.substring(key.indexOf('[') + 1, key.indexOf(']'));
+                if (!data[mainKey]) {
+                    data[mainKey] = {};
+                }
+                data[mainKey][subKey] = value;
+            } else {
+                data[key] = value;
+            }
+        }
+
+        // --- Webhook Submission ---
+        try {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+
+            const response = await fetch(webhookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+
+            if (!response.ok) {
+                console.error('Webhook submission failed:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error submitting form to webhook:', error);
+        } finally {
+            // --- UI Update ---
+            document.getElementById('surveyRoot').querySelector('header').classList.add('hidden');
+            document.getElementById('surveyRoot').querySelector('form').classList.add('hidden');
+            document.getElementById('surveyRoot').querySelector('[aria-label="Progress"]').classList.add('hidden');
+            document.getElementById('surveyRoot').querySelector('aside').classList.add('hidden');
+            thankYou.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      });
+
+      showStep(current);
+    })();
+  </script>
+</body>
+</html>

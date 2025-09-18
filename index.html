@@ -92,7 +92,7 @@
     </header>
 
     <!-- Incentives / notice -->
-    <aside class="card border-l-4 border-metallic-gold text-indigo-due p-6 mb-8">
+    <aside id="incentivesNotice" class="card border-l-4 border-metallic-gold text-indigo-due p-6 mb-8">
       <h2 class="font-semibold text-lg">A Thank You For Your Participation</h2>
       <p class="mt-2">As a thank you for participating in our survey, enjoy these exclusive benefits:</p>
       <ul class="mt-3 list-disc list-inside space-y-1">
@@ -123,8 +123,7 @@
     <form id="surveyForm" class="space-y-8" novalidate>
       <!-- Section A -->
       <fieldset class="step active" aria-describedby="a-desc">
-        <legend class="legend-title">Section A: Contact Information</legend>
-        <p id="a-desc" class="form-hint">We’ll use this to understand your context. Required items must be completed to continue.</p>
+        <p id="a-desc" class="form-hint mb-6">We’ll use this to understand your context. Required items must be completed to continue.</p>
 
         <div class="qspace">
           <div class="field" data-field>
@@ -180,8 +179,7 @@
 
       <!-- Section B -->
       <fieldset class="step" aria-describedby="b-desc">
-        <legend class="legend-title">Section B: Guest Demographics</legend>
-        <p id="b-desc" class="form-hint">Tell us about the guests you most often host.</p>
+        <p id="b-desc" class="form-hint mb-6">Tell us about the guests you most often host.</p>
 
         <div class="qspace">
           <div class="field" data-field>
@@ -278,8 +276,7 @@
 
       <!-- Section C -->
       <fieldset class="step" aria-describedby="c-desc">
-        <legend class="legend-title">Section C: Guest Behaviours</legend>
-        <p id="c-desc" class="form-hint">Patterns around booking and stay.</p>
+        <p id="c-desc" class="form-hint mb-6">Patterns around booking and stay.</p>
 
         <div class="qspace">
           <div class="field" data-field>
@@ -361,8 +358,7 @@
 
       <!-- Section D -->
       <fieldset class="step" aria-describedby="d-desc">
-        <legend class="legend-title">Section D: Guest Motivators</legend>
-        <p id="d-desc" class="form-hint">What drives bookings and choice.</p>
+        <p id="d-desc" class="form-hint mb-6">What drives bookings and choice.</p>
 
         <div class="qspace">
           <div class="field" data-field>
@@ -463,6 +459,7 @@
       const thankYou = document.getElementById('thankYou');
       const errorSummary = document.getElementById('errorSummary');
       const errorList = document.getElementById('errorList');
+      const incentivesNotice = document.getElementById('incentivesNotice');
 
       let current = 0;
 
@@ -548,6 +545,10 @@
         progressText.textContent = `Step ${index + 1} of ${steps.length}`;
         progressPct.textContent = pct + '%';
         progressSr.textContent = `Step ${index + 1} of ${steps.length} (${pct}%)`;
+        
+        // Hide the incentives notice if it's not the first step
+        incentivesNotice.classList.toggle('hidden', index !== 0);
+        
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
 
@@ -637,7 +638,7 @@
             document.getElementById('surveyRoot').querySelector('header').classList.add('hidden');
             document.getElementById('surveyRoot').querySelector('form').classList.add('hidden');
             document.getElementById('surveyRoot').querySelector('[aria-label="Progress"]').classList.add('hidden');
-            document.getElementById('surveyRoot').querySelector('aside').classList.add('hidden');
+            document.getElementById('incentivesNotice').classList.add('hidden'); // Also hide it here
             thankYou.classList.remove('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
